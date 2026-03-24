@@ -1,0 +1,40 @@
+
+(B[m## Remote URLs:(B[m
+
+origin	https://github.com/excellenteam-lev-2026/linux-exercise-1-bash-DanielPilant.git (fetch)
+origin	https://github.com/excellenteam-lev-2026/linux-exercise-1-bash-DanielPilant.git (push)
+
+(B[m## Remote Branches:(B[m
+
+  origin/HEAD -> origin/main
+  origin/main
+
+(B[m## Local Branches:(B[m
+
+* main
+
+(B[m## Submodule(s):(B[m
+
+-a16a4a2 vendor/bats-all
+
+(B[m## Most Recent Commit:(B[m
+
+commit 880ee3613daf2a3f33a2a3adf29955075027bcb0
+Author: github-classroom[bot] <66690702+github-classroom[bot]@users.noreply.github.com>
+
+    Initial commit
+
+(B[m## Configuration (.git/config):(B[m
+
+user.email=doubledan148@gmail.com
+user.name=DanielPilant
+core.repositoryformatversion=0
+core.filemode=true
+core.bare=false
+core.logallrefupdates=true
+remote.origin.url=https://github.com/excellenteam-lev-2026/linux-exercise-1-bash-DanielPilant.git
+remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+branch.main.remote=origin
+branch.main.merge=refs/heads/main
+branch.main.vscode-merge-base=origin/main
+

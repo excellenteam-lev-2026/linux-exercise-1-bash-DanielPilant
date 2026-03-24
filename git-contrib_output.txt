@@ -1,0 +1,3 @@
+DanielPilant (1):
+      c0f9c7f first commit to make an aoutput for git-contrib command
+

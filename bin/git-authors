@@ -3,13 +3,20 @@
 NO_EMAIL=false
 FILE=""
 
+# This script generates a list of authors in a Git repository, sorted by the number of commits they have made. 
+# It supports options for listing authors directly in the terminal or saving them to a file, as well as deduplicating authors by email and excluding email addresses from the output. 
+# The script uses Git commands to retrieve author information and processes it using awk to format the output according to the specified options.
+
+# $# is a special variable in bash that holds the number of command-line arguments passed to the script.
+# In this case, it is used to check if any arguments were provided when running the script. If there are no arguments, the script will proceed with its default behavior, which is to generate a list of authors and save it to a file named "AUTHORS".
+# If there are arguments, the script will process them according to the specified options (e.g., --list, --no-email) and generate the output accordingly.
 while [[ $# -gt 0 ]]; do
   case $1 in
-    -l|--list )
+    -l|--list ) # when the --list flag is used, the script will output the list of authors directly to the terminal instead of saving it to a file. This allows users to quickly view the authors without needing to open a separate file.
       LIST=true
       shift
       ;;
-    --no-email )
+    --no-email ) # when the --no-email flag is used, the script will exclude email addresses from the output. This can be useful for privacy reasons or when the user only wants to see the names of the authors without their associated email addresses.
       NO_EMAIL=true
       shift
       ;;
@@ -18,7 +25,12 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [ $LIST != true ]; then
+# check if the user provided a file name as an argument. 
+# If not, the script will look for existing files that match common naming patterns for author lists (e.g., AUTHORS, CONTRIBUTORS) and use the first one it finds.
+# If no such file exists, it will default to using "AUTHORS" as the file name for saving the list of authors.
+
+# FOUND THE BUG! it must be with square brackets to avoid getting unary operator when the LIST variable is not set. The correct syntax is: if [[ $LIST != true ]]; then 
+if [[ $LIST != true ]]; then
   FILE=$1
   if [ -z "$FILE" ]; then
     FILE=$(find . -mindepth 1 -maxdepth 1 \( -iname '*authors*' -o -iname '*contributors*' \) | head -n1)
@@ -35,6 +47,13 @@ fi
 authors() {
   if $NO_EMAIL; then
     # email will be used to uniq authors.
+
+    # shortlog: summarizes git log output in a format suitable for release announcements. 
+    # -s: suppresses commit message output, showing only the number of commits and the author name.
+    # -n: sorts the output by the number of commits, with the most prolific authors appearing first.
+    # -e: shows the email address of each author in the output.
+    # awk '{$1=""; sub(" ", ""); print}' is used to remove the commit count from the output of git shortlog, leaving only the author names and email addresses.
+    # The first field (the commit count) is set to an empty string, and the leading space is removed
     git shortlog HEAD -sne | awk '{$1=""; sub(" ", ""); print}' | awk -F'<' '!x[$1]++' | awk -F'<' '!x[$2]++' \
       | awk -F'<' '{gsub(/ +$/, "", $1); print $1}'
   else

@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
 
+# This script counts the number of commits in the current Git repository. It can also provide a breakdown of commits by author if the --all flag is used.
+
+# ============= git and bash concepts: =============
+# $1 holds the first argument passed to the script, which can be used to determine if the user wants to include all commits in the count.
+# test is a built-in command in bash that evaluates conditional expressions. In this case, it checks if the first argument ($1) is equal to the string "--all".
+# git shortlog -n -s is a Git command that provides a summary of commits by author. The -n flag sorts the output by the number of commits, and the -s flag shows only the number of commits and the author name.
+# awk is a powerful text processing tool that can be used to manipulate and format the output of commands. In this case, it is used to format the output of git shortlog to display the author's name followed by the number of commits in parentheses
+# substr is an awk function that extracts a substring from a string. Here, it is used to extract the author's name from the output of git shortlog.
 if test "$1" = "--all"; then
   git shortlog -n -s | awk '{print substr($0,index($0,$2)) " (" $1 ")"}'
   echo
 fi
 
-echo total "$(git rev-list --count HEAD^)"
+# the bug was: HEAD^
+# the correct command is: HEAD because we want to count all commits including the initial commit, which is represented by HEAD. Using HEAD^ would exclude the initial commit from the count, resulting in an incorrect total. By using HEAD, we ensure that all commits are counted accurately.
+# and when we initialize only one commit the program crashes because it tries to count commits starting from HEAD^, which does not exist in this case. By using HEAD, we can count all commits without encountering an error, even when there is only one commit in the repository.
+echo total "$(git rev-list --count HEAD)"
+
+# rev-list is a Git command that lists commit objects in reverse chronological order. The --count flag counts the number of commits in the specified range, which in this case is HEAD, representing the latest commit in the repository. This allows us to get the total number of commits in the repository accurately.

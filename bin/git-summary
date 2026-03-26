@@ -1,36 +1,48 @@
 #!/usr/bin/env bash
 
-
+# This script provides a summary of the Git repository, including the total number of commits, the age of the repository, the last active date, and a breakdown of commits by author. It also supports various options for customizing the output.
 cd "$(git root)" || { echo "Can't cd to top level directory";exit 1; }
 
-PROJECT_FULL_PATH=
-SUMMARY_BY_LINE=
-DEDUP_BY_EMAIL=
-MERGES_ARG=
-OUTPUT_STYLE=
-for arg in "$@"; do
-    case "x$arg" in
+PROJECT_FULL_PATH= # when the --full-path flag is used, the script will display the full path of the project instead of just the project name. This can be useful for distinguishing between multiple repositories that may have the same name but are located in different directories.
+SUMMARY_BY_LINE= # when the --line flag is used, the script will provide a summary of the repository based on the number of lines in the specified paths. This can be useful for analyzing the contribution of different authors to specific files or directories within the repository.
+DEDUP_BY_EMAIL= # when the --dedup-by-email flag is used, the script will remove duplicate authors who belong to the same email address. This can be useful for consolidating commit counts for authors who may have used different names but the same email address in their commits.
+MERGES_ARG= # when the --no-merges flag is used, the script will exclude merge commits from the summary. This can be useful for getting a clearer picture of individual contributions without counting merge commits, which may not represent direct contributions to the codebase.
+OUTPUT_STYLE= # when the --output-style flag is used, the script will allow the user to specify the output format for the summary. The user can choose between "tabular" and "oneline" formats, which will affect how the summary information is displayed. The "tabular" format will display the information in a table with columns, while the "oneline" format will display the information in a single line for easier readability.
+for arg in "$@"; do # $@ is a special variable in bash that represents all the command-line arguments passed to the script. In this case, it is used to iterate through each argument provided by the user when running the script. The for loop processes each argument and sets the appropriate variables based on the flags provided by the user, allowing for customization of the script's behavior and output format.
+
+# FOUND THE BUG! @args had x as a prefix, but it should be $arg to iterate through the command-line arguments passed to the script. The for loop is designed to process each argument and set the appropriate variables based on the flags provided by the user. By using $arg, we can correctly evaluate each argument and configure the script's behavior accordingly. 
+# I have no idea. It seems like a typo or an unfinished thought. I will remove it to clean up the code. 
+# (this is what i'll write when i'll be a software engineer in a tech giant in the future)
+
+    case "$arg" in
+      # when the --full-path flag is used, the script will display the full path of the project instead of just the project name. This can be useful for distinguishing between multiple repositories that may have the same name but are located in different directories.
         --full-path)
             PROJECT_FULL_PATH=1
             ;;
+      # when the --line flag is used, the script will provide a summary of the repository based on the number of lines in the specified paths. This can be useful for analyzing the contribution of different authors to specific files or directories within the repository.
         --line)
             SUMMARY_BY_LINE=1
             ;;
-        --dedup-by-email)
+      # when the --dedup-by-email flag is used, the script will remove duplicate authors who belong to the same email address. This can be useful for consolidating commit counts for authors who may have used different names but the same email address in their commits.
+        --dedup-by-email) 
             DEDUP_BY_EMAIL=1
             ;;
-        --no-merges)
+      # when the --no-merges flag is used, the script will exclude merge commits from the summary. This can be useful for getting a clearer picture of individual contributions without counting merge commits, which may not represent direct contributions to the codebase.
+        --no-merges) 
             MERGES_ARG="--no-merges"
             ;;
-        --output-style)
+      # when the --output-style flag is used, the script will allow the user to specify the output format for the summary. The user can choose between "tabular" and "oneline" formats, which will affect how the summary information is displayed. The "tabular" format will display the information in a table with columns, while the "oneline" format will display the information in a single line for easier readability.
+        --output-style) 
             OUTPUT_STYLE="$2"
             shift
             ;;
         -*)
+      # prints the error message "unknown argument $arg found" to standard error and exits the script with a status code of 1. This is used to handle any unrecognized command-line arguments that are passed to the script, ensuring that the user is informed of any invalid options and preventing the script from running with unintended behavior.
             >&2 echo "unknown argument $arg found"
             exit 1
             ;;
         *)
+      # the set -- "$@" "$arg" command is used to update the positional parameters of the script with the remaining arguments after processing the known flags. This allows the script to handle any additional arguments that may be passed by the user, such as specific paths or commit references, while still maintaining the ability to process the known flags correctly.
             set -- "$@" "$arg"
             ;;
     esac
@@ -38,6 +50,7 @@ for arg in "$@"; do
     shift
 done
 
+# -n: checks if the length of the string is non-zero. In this case, it is used to check if the SUMMARY_BY_LINE variable has been set, which indicates that the user has requested a summary based on lines rather than commits. If SUMMARY_BY_LINE is set, the script will proceed with generating a summary based on lines; otherwise, it will generate a summary based on commits.
 if [ -n "$DEDUP_BY_EMAIL" ] && [ -n "$SUMMARY_BY_LINE" ]; then
     >&2 echo "--dedup-by-email used with --line is not supported"
     exit 1
@@ -67,6 +80,7 @@ fi
 commit_date() {
   # the $1 can be empty
   # shellcheck disable=SC2086
+  # the $1 is 
   git log $MERGES_ARG --pretty='format: %ai' "$1" | cut -d ' ' -f 2
 }
 

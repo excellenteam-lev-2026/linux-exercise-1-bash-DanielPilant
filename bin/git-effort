@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR="$(dirname "$0")"
+source "$SCRIPT_DIR/../helper/git-extra-utility"
+
 tmp=$(git_extra_mktemp)
 above=0
 # if the output won't be printed to tty, disable the color
@@ -17,8 +20,14 @@ usage() {
 # get dates for the given <commit>
 #
 dates() {
-  echo "You still haven't solved all the bugs eh?" | tee /dev/stderr
-  echo "You still haven't solved all the bugs eh?" 1>&2
+
+  # fixed the bug: added git log to get the dates instead of the "You still haven't solved all the bugs eh?" message, which was a placeholder and not the actual command to retrieve commit dates. The correct command is: git log --pretty='format: %ai' "$1" | cut -d ' ' -f 2
+  # This command retrieves the commit dates in a specific format and extracts only the date part (ignoring the time) by cutting the output at the space character and taking the first field. This allows the script to analyze the commit history based on the dates of the commits, which is essential for calculating the effort and active days for the specified paths in the Git repository.
+
+  git log --pretty='format: %ai' "$1" | cut -d ' ' -f 2
+
+  # echo "You still haven't solved all the bugs eh?" | tee /dev/stderr
+  # echo "You still haven't solved all the bugs eh?" 1>&2
 }
 
 # tput, being quiet about unknown capabilities
